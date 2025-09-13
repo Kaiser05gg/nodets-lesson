@@ -1,6 +1,6 @@
 import express, { Express } from "express";
 import cors from "cors";
-import mysql, { Connection } from "mysql2/promise";
+import mysql, { Connection, ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import * as dotenv from "dotenv";
 
 async function main() {
@@ -23,15 +23,39 @@ async function main() {
     database: MYSQL_DB,
   });
 
-  // const sql = "SELECT * FROM todos";
-  // const results = await connection.execute(sql);
-
-  // console.log(results);
+  type Todo = {
+    id: Number;
+    title: string;
+    description: string;
+    createAt?: Date;
+    updateAt?: Date;
+  };
 
   app.get("/api/todos", async (req, res) => {
     const sql = "SELECT * FROM todos";
-    const [rows] = await connection.execute(sql);
+    const [rows] = await connection.execute<Todo[] & RowDataPacket[]>(sql);
     res.json(rows);
+  });
+
+  app.get("/api/todos/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const sql = `SELECT * FROM todos WHERE id=${id}`;
+    const [rows] = await connection.execute<Todo[] & RowDataPacket[]>(sql);
+    res.json(rows[0]);
+  });
+
+  app.post("/api/todos/:id", async (req, res) => {
+    const todo = req.body;
+    const sql = `INSERT INTO todos (title,description) VALUES ("${todo.title}","${todo.description}")`;
+    const [results] = await connection.execute<ResultSetHeader>(sql);
+    res.status(201).json(results.insertId);
+  });
+
+  app.get("/api/todos/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    const sql = `SELECT * FROM todos WHERE id=${id}`;
+    const [rows] = await connection.execute<Todo[] & RowDataPacket[]>(sql);
+    res.json(rows[0]);
   });
 
   // connection.connect(function (err) {
