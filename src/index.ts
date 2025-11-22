@@ -5,6 +5,7 @@ import mysql, { Connection } from "mysql2/promise"; // ResultSetHeader
 import { TodoRepository } from "./repositories/todorepository";
 import * as dotenv from "dotenv";
 import { NotFoundDataError } from "./utils/error";
+import { TodoService } from "./services/todoService";
 
 async function main() {
   dotenv.config();
@@ -27,9 +28,10 @@ async function main() {
   });
 
   const todoRepository = new TodoRepository(connection);
+  const todoService = new TodoService(todoRepository);
 
   app.get("/api/todos", async (_req, res) => {
-    const result = await todoRepository.findAll();
+    const result = await todoService.findAll();
 
     if (result instanceof Error) {
       res.status(500).send();
