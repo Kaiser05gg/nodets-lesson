@@ -25,6 +25,10 @@ export class TodoService implements ITodoService {
   }
 
   public async update(id: number, todo: Todo): Promise<Todo | Error> {
+    const getResult = await this.todoRepository.getByID(id);
+    if (getResult instanceof Error) {
+      return getResult;
+    }
     const result = await this.todoRepository.update(id, todo);
     return result;
   }
