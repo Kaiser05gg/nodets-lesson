@@ -4,8 +4,8 @@ import mysql, { Connection } from "mysql2/promise"; // ResultSetHeader
 // import { Todo } from "./models/todo";
 import { TodoRepository } from "./repositories/todorepository";
 import * as dotenv from "dotenv";
-import { NotFoundDataError } from "./utils/error";
 import { TodoService } from "./services/todoService";
+import { TodoController } from "./controllers/todoController";
 
 async function main() {
   dotenv.config();
@@ -29,70 +29,8 @@ async function main() {
 
   const todoRepository = new TodoRepository(connection);
   const todoService = new TodoService(todoRepository);
-
-  app.get("/api/todos", async (_req, res) => {
-    const result = await todoService.findAll();
-
-    if (result instanceof Error) {
-      res.status(500).send();
-      return;
-    }
-
-    res.status(200).json(result);
-  });
-
-  app.get("/api/todos/:id", async (req, res) => {
-    const id = parseInt(req.params.id);
-    const result = await todoService.getByID(id);
-
-    if (result instanceof NotFoundDataError) {
-      res.status(404).json(result.message);
-      return;
-    }
-
-    if (result instanceof Error) {
-      res.status(500).send();
-      return;
-    }
-
-    res.status(200).json(result);
-  });
-
-  app.post("/api/todos/", async (req, res) => {
-    const todo = req.body;
-    const result = await todoService.create(todo);
-
-    if (result instanceof Error) {
-      res.status(500).send();
-      return;
-    }
-
-    res.status(200).json(result);
-  });
-
-  app.put("/api/todos/:id", async (req, res) => {
-    const id = parseInt(req.params.id);
-    const todo = req.body;
-    const result = await todoService.update(id, todo);
-
-    if (result instanceof Error) {
-      res.status(404).send();
-      return;
-    }
-
-    res.status(200).json(result);
-  });
-
-  app.delete("/api/todos/:id", async (req, res) => {
-    const id = parseInt(req.params.id);
-    const result = await todoService.delete(id);
-
-    if (result instanceof Error) {
-      res.status(500).send();
-      return;
-    }
-
-    res.status(204).json(result);
-  });
+  const todoController = new TodoController(todoService);
+  app.use("/api/", todoController.router);
 }
+
 main();
