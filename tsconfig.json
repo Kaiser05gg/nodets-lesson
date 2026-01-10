@@ -6,7 +6,7 @@
     ],
     "module": "commonjs",
     "outDir": "./dist",
-    "rootDir": ".",
+    "rootDir": "src",
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
@@ -16,7 +16,6 @@
   },
   "include": [
     "src/**/*.ts",
-    ".eslintrc.js",
   ],
   "exclude": [
     "node_modules",
