@@ -122,6 +122,47 @@ describe("todoRepository", () => {
     });
   });
 
+  describe("update", () => {
+    it("should update todo and return updatedID", async () => {
+      const repository = new TodoRepository(connection);
+
+      const updateTodos = await createTodoTestDatas(connection, 1);
+      const updateTodo = updateTodos[0];
+
+      const todo: Todo = {
+        title: "sample title",
+        description: "sample description",
+      };
+
+      const result = await repository.update(updateTodo.id!, todo);
+      if (result instanceof Error) {
+        throw new Error(`Test failed because an error has occured":${result.message}`);
+      }
+
+      const selectResult = await getTodoByIdTest(connection, updateTodo.id!);
+
+      expect(result.id).toBe(updateTodo.id);
+      expect(selectResult.title).toBe(todo.title);
+      expect(selectResult.description).toBe(todo.description);
+    });
+
+    it("should return SqlError if database is clushed", async () => {
+      const mockConnection = {
+        execute: jest.fn().mockRejectedValue(new Error("Mocked SQL Error")),
+      } as unknown as Connection;
+
+      const repository = new TodoRepository(mockConnection);
+      const todo: Todo = {
+        title: "sample",
+        description: "sample",
+      };
+
+      const result = await repository.update(0, todo);
+
+      expect(result instanceof SqlError).toBeTruthy();
+    });
+  });
+
   async function createTodoTestDatas(connection: Connection, num: number): Promise<Todo[]> {
     const todoList: Todo[] = [];
 
