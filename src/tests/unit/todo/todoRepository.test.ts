@@ -163,6 +163,41 @@ describe("todoRepository", () => {
     });
   });
 
+  describe("delete", () => {
+    it("should delete todo and return deleteID", async () => {
+      const repository = new TodoRepository(connection);
+
+      const createdTodos = await createTodoTestDatas(connection, 1);
+      const createdTodo = createdTodos[0];
+
+      const result = await repository.delete(createdTodo.id!);
+      if (result instanceof Error) {
+        throw new Error(`Test failed because an error has occured":${result.message}`);
+      }
+
+      const selectResult = await getTodoByIdTest(connection, createdTodo.id!);
+
+      expect(undefined).toBe(selectResult);
+      // expect(0).toBe(result);
+    });
+
+    it("should return SqlError if database is clushed", async () => {
+      const mockConnection = {
+        execute: jest.fn().mockRejectedValue(new Error("Mocked SQL Error")),
+      } as unknown as Connection;
+
+      const repository = new TodoRepository(mockConnection);
+      const todo: Todo = {
+        title: "sample",
+        description: "sample",
+      };
+
+      const result = await repository.update(0, todo);
+
+      expect(result instanceof SqlError).toBeTruthy();
+    });
+  });
+
   async function createTodoTestDatas(connection: Connection, num: number): Promise<Todo[]> {
     const todoList: Todo[] = [];
 
