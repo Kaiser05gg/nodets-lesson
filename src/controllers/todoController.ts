@@ -47,7 +47,7 @@ export class TodoController {
         return;
       }
 
-      res.status(200).json(result);
+      res.status(201).json(result);
     });
 
     this.router.put("/todos/:id", async (req, res) => {
