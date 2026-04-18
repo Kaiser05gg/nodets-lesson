@@ -58,7 +58,7 @@ export class TodoRepository implements ITodoRepository {
       const [rows] = await this.connection.execute<Todo[] & RowDataPacket[]>(selectSql, [id]);
 
       if (rows.length === 0) {
-        return new SqlError("updated todo not found");
+        return new NotFoundDataError("updated todo not found");
       }
 
       return rows[0];

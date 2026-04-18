@@ -203,8 +203,8 @@ describe("todoRepository", () => {
 
     for (let index = 0; index < num; index++) {
       const todo: Todo = {
-        title: "sample title",
-        description: "sample description",
+        title: `sample title${index}`,
+        description: `sample description${index}`,
       };
 
       const sql = `INSERT INTO todos (title,description) VALUES ("${todo.title}","${todo.description}")`;

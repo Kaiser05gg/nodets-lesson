@@ -55,8 +55,13 @@ export class TodoController {
       const todo = req.body;
       const result = await this.todoService.update(id, todo);
 
+      if (result instanceof NotFoundDataError) {
+        res.status(404).json(result.message);
+        return;
+      }
+
       if (result instanceof Error) {
-        res.status(404).send();
+        res.status(500).send();
         return;
       }
 
